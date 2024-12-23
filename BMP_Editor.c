@@ -1,19 +1,25 @@
-#include "stdio.h"
-#include "stdlib.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 unsigned char* data;
 
 const int Extract_data(FILE* file_ptr);
 void Grayscale(unsigned char(*src)[3], FILE* file_ptr, int rows);
 
-int main()
+int main(int argc, char **argv)
 {
+    if (argc < 2) 
+    {
+        fprintf(stderr, "Error: File path not entered.");
+        exit(1);
+    }
+
     FILE* ptr;
-    ptr = fopen("Untitled.bmp", "rb+");
+    ptr = fopen(argv[1], "rb+");
     if(ptr == NULL)
     {
-         perror("Error");
-         exit(1);
+         fprintf(stderr, "Error: File not found.");
+         exit(2);
     }
 
     int rows = (Extract_data(ptr)/3);
