@@ -20,27 +20,14 @@ int main()
     unsigned char (*compiled_data)[3] = malloc((rows) * 3);
 
     int m = 0;
-    for(int i = 0; i < rows;)
+    for(int i = 0; i < rows; m++, i++)
     {
         for (int j = 0; j < 3; j++)
         {
-            compiled_data[m][j] = data[i];
-            i++;
+            compiled_data[m][j] = data[m*3 + j];
         }
-        m++;
     }
-    for(int i = 0; i , rows; i++)
-    {
-      if(m % 1000 == 0)
-            {    printf("%d",compiled_data[m][k]);
-                if(compiled_data[m][k] == 0)
-                    printf("(%d,%d)", m,k);
-            }
-    }
-    printf("%d\n", m);
-    printf("%d\n", rows);
-    rewind(ptr);
-    printf("%d",ftell(ptr));
+
     Grayscale(compiled_data, ptr, rows);
 
     free(compiled_data);
@@ -60,30 +47,21 @@ const int Extract_data(FILE* file_ptr)
 
 void Grayscale(unsigned char (*src)[3], FILE* file_ptr, int rows)
 {
-    //A bit inefficient, ik.
+    //A bit inefficient, ig.
     int m = 18;
-    for(int i = 54; i < rows; i++)
+    rewind(file_ptr);
+    for(int i = 54; i < rows; i++, m++)
     {
         int temp = 0;
         for(int k = 0; k < 3; k++)
-        {
             temp += (int)src[m][k];
-           
-        }
 
-        for (int j = 0; j < 3; j++)
-        {   
+        for (int j = 0; j < 3; j++)  
             src[m][j] = (unsigned char)(temp/3);
-           
-        }
-        if(m % 1000 == 0)
-            printf("\n");
-        m++;
     }
 
-    /*for( int i = 18; i < rows; i++)
+    for( int i = 0; i < rows; i++)
     {
-        for( int j = 0; j < 3; j++)
-            fwrite(src[i][j], 1, 1, file_ptr);
-    }*/
+            fwrite( src[i], 1, 3, file_ptr);
+    }
 }
