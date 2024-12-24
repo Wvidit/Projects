@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <math.h>
 
-unsigned char* data;
+uint8_t* data;
 
 const int Extract_data(FILE* file_ptr);
 void Grayscale(unsigned char(*src)[3], FILE* file_ptr, int rows);
+float Std_d(uint8_t (*src)[3], int index);
 
 int main(int argc, char **argv)
 {
@@ -23,7 +26,7 @@ int main(int argc, char **argv)
     }
 
     int rows = (Extract_data(ptr)/3);
-    unsigned char (*compiled_data)[3] = malloc((rows) * 3);
+    uint8_t (*compiled_data)[3] = malloc((rows) * 3);
 
     int m = 0;
     for(int i = 0; i < rows; m++, i++)
@@ -34,11 +37,13 @@ int main(int argc, char **argv)
         }
     }
 
-    Grayscale(compiled_data, ptr, rows);
+    //Grayscale(compiled_data, ptr, rows);
+    printf("%.2f",Std_d(compiled_data, 19));
 
     free(compiled_data);
     free(data);
 }
+
 
 const int Extract_data(FILE* file_ptr)
 {
@@ -51,7 +56,8 @@ const int Extract_data(FILE* file_ptr)
     return size;
 }
 
-void Grayscale(unsigned char (*src)[3], FILE* file_ptr, int rows)
+
+void Grayscale(uint8_t (*src)[3], FILE* file_ptr, int rows)
 {
     //A bit inefficient, ig.
     int m = 18;
@@ -63,11 +69,29 @@ void Grayscale(unsigned char (*src)[3], FILE* file_ptr, int rows)
             temp += (int)src[m][k];
 
         for (int j = 0; j < 3; j++)  
-            src[m][j] = (unsigned char)(temp/3);
+            src[m][j] = (uint8_t)(temp/3);
     }
 
     for( int i = 0; i < rows; i++)
     {
             fwrite( src[i], 1, 3, file_ptr);
     }
+}
+
+
+float Std_d(uint8_t (*src)[3], int index)
+{
+    float mean;
+
+    for(int i = 0; i < 3; i++)
+        mean += src[index][i];
+    mean /= 3;
+
+    float std_deviation;
+    for(int i = 0; i < 3; i++)
+        std_deviation += (int)pow((mean - src[index][i]), 2);
+    std_deviation /= 3;
+    std_deviation = sqrt(std_deviation);
+
+    return std_deviation;
 }
