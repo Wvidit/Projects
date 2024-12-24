@@ -2,12 +2,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#define PI 3.14
 
 uint8_t* data;
 
 const int Extract_data(FILE* file_ptr);
+
 void Grayscale(unsigned char(*src)[3], FILE* file_ptr, int rows);
+
 float Std_d(uint8_t (*src)[3], int index);
+
+float mean(uint8_t (*src)[3], int index);
+
+void Add_noise(uint8_t (*src)[3], FILE *file_ptr, int rows);
+
 
 int main(int argc, char **argv)
 {
@@ -38,7 +46,7 @@ int main(int argc, char **argv)
     }
 
     //Grayscale(compiled_data, ptr, rows);
-    printf("%.2f",Std_d(compiled_data, 19));
+    Add_noise(compiled_data, ptr, rows);
 
     free(compiled_data);
     free(data);
@@ -80,18 +88,47 @@ void Grayscale(uint8_t (*src)[3], FILE* file_ptr, int rows)
 
 
 float Std_d(uint8_t (*src)[3], int index)
-{
-    float mean;
+{    
 
-    for(int i = 0; i < 3; i++)
-        mean += src[index][i];
-    mean /= 3;
+    int Mean = mean(src, index);
 
     float std_deviation;
     for(int i = 0; i < 3; i++)
-        std_deviation += (int)pow((mean - src[index][i]), 2);
+        std_deviation += (int)pow((Mean - src[index][i]), 2);
     std_deviation /= 3;
     std_deviation = sqrt(std_deviation);
 
     return std_deviation;
+}
+
+
+float mean(uint8_t (*src)[3], int index)
+{
+    float mean;
+    for(int i = 0; i < 3; i++)
+        mean += src[index][i];
+    mean /= 3;
+
+    return mean;
+}
+
+
+void Add_noise(uint8_t (*src)[3], FILE *file_ptr, int rows)
+{
+    float noise, mean_val, std_dev;
+    for(int i = 0; i < rows; i++)
+    {
+        mean_val = mean(src, i);
+        std_dev = Std_d(src, i);
+
+        if(std_dev != 0)
+        {
+        for(int j = 0; j < 3; j++)
+            {
+                noise = (1 / (std_dev * sqrt(2 * PI))) * exp(-1 * (pow(src[i][j] - mean_val, 2) / (2 * pow(std_dev, 2))));
+                if(i % 1000 == 0)
+                    printf("%f\n", noise);
+            }
+        }
+    }    
 }
