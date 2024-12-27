@@ -2,13 +2,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "grayscale.h"
 #define PI 3.14
 
 uint8_t* data;
 
 const int Extract_data(FILE* file_ptr);
 
-void Grayscale(unsigned char(*src)[3], FILE* file_ptr, int rows);
+//void Grayscale(unsigned char(*src)[3], FILE* file_ptr, int rows);
 
 float Std_d(uint8_t (*src)[3], int index);
 
@@ -45,8 +46,8 @@ int main(int argc, char **argv)
         }
     }
 
-    //Grayscale(compiled_data, ptr, rows);
-    Add_noise(compiled_data, ptr, rows);
+    Grayscale(compiled_data, ptr, rows);
+    //Add_noise(compiled_data, ptr, rows);
 
     free(compiled_data);
     free(data);
@@ -65,7 +66,7 @@ const int Extract_data(FILE* file_ptr)
 }
 
 
-void Grayscale(uint8_t (*src)[3], FILE* file_ptr, int rows)
+/*void Grayscale(uint8_t (*src)[3], FILE* file_ptr, int rows)
 {
     //A bit inefficient, ig.
     int m = 18;
@@ -84,7 +85,7 @@ void Grayscale(uint8_t (*src)[3], FILE* file_ptr, int rows)
     {
             fwrite( src[i], 1, 3, file_ptr);
     }
-}
+}*/
 
 
 float Std_d(uint8_t (*src)[3], int index)
