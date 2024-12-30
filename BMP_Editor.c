@@ -17,20 +17,19 @@ float mean(uint8_t (*src)[3], int index);
 
 void Add_noise(uint8_t (*src)[3], FILE *file_ptr, int rows);
 
-
 int main(int argc, char **argv)
 {
     if (argc < 2) 
     {
-        fprintf(stderr, "Error: File path not entered.");
+        fprintf(stderr, "Error: File path not entered.\n");
         exit(1);
     }
 
     FILE* ptr;
-    ptr = fopen(argv[1], "rb+");
+    ptr = fopen(argv[1], "wb");
     if(ptr == NULL)
     {
-         fprintf(stderr, "Error: File not found.");
+         fprintf(stderr, "Error: File not found.\n");
          exit(2);
     }
 
@@ -45,14 +44,13 @@ int main(int argc, char **argv)
             compiled_data[m][j] = data[m*3 + j];
         }
     }
-
-    Grayscale(compiled_data, ptr, rows);
-    //Add_noise(compiled_data, ptr, rows);
+    //printf("%d", rows);
+    //Grayscale(compiled_data, ptr, rows);
+    Add_noise(compiled_data, ptr, rows);
 
     free(compiled_data);
     free(data);
 }
-
 
 const int Extract_data(FILE* file_ptr)
 {
@@ -64,29 +62,6 @@ const int Extract_data(FILE* file_ptr)
     fread(data, 1, size, file_ptr);
     return size;
 }
-
-
-/*void Grayscale(uint8_t (*src)[3], FILE* file_ptr, int rows)
-{
-    //A bit inefficient, ig.
-    int m = 18;
-    rewind(file_ptr);
-    for(int i = 54; i < rows; i++, m++)
-    {
-        int temp = 0;
-        for(int k = 0; k < 3; k++)
-            temp += (int)src[m][k];
-
-        for (int j = 0; j < 3; j++)  
-            src[m][j] = (uint8_t)(temp/3);
-    }
-
-    for( int i = 0; i < rows; i++)
-    {
-            fwrite( src[i], 1, 3, file_ptr);
-    }
-}*/
-
 
 float Std_d(uint8_t (*src)[3], int index)
 {    
@@ -117,19 +92,16 @@ float mean(uint8_t (*src)[3], int index)
 void Add_noise(uint8_t (*src)[3], FILE *file_ptr, int rows)
 {
     float noise, mean_val, std_dev;
-    for(int i = 0; i < rows; i++)
+    for(int i = 19; i < rows; i++)
     {
-        mean_val = mean(src, i);
-        std_dev = Std_d(src, i);
+        mean_val = mean(src, i)/10;
+        std_dev = Std_d(src, i)/10;
 
-        if(std_dev != 0)
-        {
         for(int j = 0; j < 3; j++)
             {
                 noise = (1 / (std_dev * sqrt(2 * PI))) * exp(-1 * (pow(src[i][j] - mean_val, 2) / (2 * pow(std_dev, 2))));
-                if(i % 1000 == 0)
-                    printf("%f\n", noise);
+                uint8_t value = (uint8_t)src[i][j] + (uint8_t)(noise * 900);
+                fwrite( &value, 1, 1, file_ptr);
             }
-        }
     }    
 }
