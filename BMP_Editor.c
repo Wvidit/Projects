@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include <time.h>
 #include "grayscale.h"
 #define PI 3.14
 
@@ -26,7 +27,7 @@ int main(int argc, char **argv)
     }
 
     FILE* ptr;
-    ptr = fopen(argv[1], "wb");
+    ptr = fopen(argv[1], "rb+");
     if(ptr == NULL)
     {
          fprintf(stderr, "Error: File not found.\n");
@@ -91,17 +92,31 @@ float mean(uint8_t (*src)[3], int index)
 
 void Add_noise(uint8_t (*src)[3], FILE *file_ptr, int rows)
 {
-    float noise, mean_val, std_dev;
-    for(int i = 19; i < rows; i++)
+    int random;
+    uint8_t (*noisey)[3] = malloc(rows*3);
+    for(int i = 0; i < rows; i++)
     {
-        mean_val = mean(src, i)/10;
-        std_dev = Std_d(src, i)/10;
-
         for(int j = 0; j < 3; j++)
+        {
+            noisey[i][j] = src[i][j];
+        }
+    }
+    
+    for(int i = 54; i < rows; i++)
+    {
+            for(int j = 0; j < 3; j++)
             {
-                noise = (1 / (std_dev * sqrt(2 * PI))) * exp(-1 * (pow(src[i][j] - mean_val, 2) / (2 * pow(std_dev, 2))));
-                uint8_t value = (uint8_t)src[i][j] + (uint8_t)(noise * 900);
-                fwrite( &value, 1, 1, file_ptr);
+                random = rand();
+                if(random % 2 == 0 && src[i][j] < 244)
+                    noisey[i][j] = (uint8_t)(src[i][j] + 10);
+                if(random % 2 != 0 && src[i][j] > 10)
+                    noisey[i][j] = (uint8_t)(src[i][j] - 10);
+                if( i % 10000 == 0)
+                    printf("%d\n", random);
             }
-    }    
+    } 
+    for( int i = 0; i < rows; i++)
+    {
+            fwrite( noisey[i], 1, 3, file_ptr);
+    } 
 }
