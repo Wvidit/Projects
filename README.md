@@ -1,1 +1,1 @@
-This repo contains the projects made by me:).
+This repo contains the shit I learn 
