@@ -1,1 +1,1 @@
-This repo contains the shit I learn 
+This repo contains ts I learn 
